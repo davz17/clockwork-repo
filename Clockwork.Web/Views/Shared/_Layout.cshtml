@@ -1,0 +1,143 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWH Clockwork Project</title>
+    <link rel="stylesheet" href="~/Content/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/Content/css/site.css" />
+    <!--W3-->
+    <link href="~/Content/css/w3.css" rel="stylesheet" />
+    <link href="~/Content/css/w3-theme-blue-grey.css" rel="stylesheet" />
+    <!--fa-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="~/Content/css/font-awesome.min.css" rel="stylesheet" />
+    <!--googleapi-->
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+    <!--jquery-->
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!--angularJS-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <style>
+        html, body, h1, h2, h3, h4, h5 {
+            font-family: "Open Sans", sans-serif
+        }
+    </style>    
+</head>
+<body class="w3-theme-l5">
+    <!-- Navbar -->
+    <!-- Top container -->
+    <div class="w3-top">
+        <div class="w3-bar w3-black w3-card-2" id="myNavbar">
+            <a href="#home" class="w3-bar-item w3-button w3-wide"><i class="fa fa-ravelry" aria-hidden="true"></i>AWH Clockwork Project @ViewData["Version"] on @ViewData["Runtime"]!</a>
+            <!-- Right-sided navbar links -->
+            <div class="w3-right w3-hide-small">
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-power-off" aria-hidden="true"></i> Logout</a>
+            </div>
+            <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+            <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" id="btnbar" onclick="w3_open();">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
+    </div>
+    <!-- Sidebar/menu -->
+    <nav class="w3-sidebar w3-collapse w3-card-2 w3-white" style="z-index:3;width:280px;margin-top:-11px;" id="mySidebar">
+        <br>
+        <div class="w3-container w3-row">
+            <div class="w3-col s4">
+                <img src="~/Content/images/avatar2.png" class="w3-circle w3-margin-right" style="width:46px" />
+            </div>
+            <div class="w3-col s8 w3-bar">
+                <span>Welcome, <strong>Admin</strong></span><br>
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>
+            </div>
+        </div>
+        <hr>
+        <div class="w3-bar-block" id="lefNav">
+            <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+            <a href="/Home/Index" id="MyDashboard" class="w3-bar-item w3-button w3-padding"><i class="fa fa-dashboard"></i>  My Dashboard</a>
+            <a href="/Home/History" id="History" class="w3-bar-item w3-button w3-padding"><i class="fa fa-history fa-fw"></i>  History</a>
+        </div>
+    </nav>
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+    <!-- Page Container -->
+    <div class="w3-main" style="margin-left:280px;margin-top:-15px;">
+        @RenderBody()
+        <!-- End page content -->
+    </div>    
+    <script>        
+        //start: Left nav
+        var mySidebar;
+        var overlayBg;
+        var _currentPage = "@Context.Request.Path".replace("/Home/", "");
+        if (_currentPage == "Index" || _currentPage == "/") _currentPage = "MyDashboard";
+        
+        $("#MyDashboard").removeClass("w3-blue");
+        $("#History").removeClass("w3-blue");       
+        $("#" + _currentPage).addClass("w3-blue");
+        //End: Left nav
+
+        function myFunction(id) {
+            var x = document.getElementById(id);
+            if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+                x.previousElementSibling.className += " w3-theme-d1";
+            } else {
+                x.className = x.className.replace("w3-show", "");
+                x.previousElementSibling.className =
+                    x.previousElementSibling.className.replace(" w3-theme-d1", "");
+            }
+        }
+
+        // Used to toggle the menu on smaller screens when clicking on the menu button
+        function openNav() {
+            var x = document.getElementById("navDemo");
+            if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+            } else {
+                x.className = x.className.replace(" w3-show", "");
+            }
+        }
+            
+        function w3_open() {
+            mySidebar = document.getElementById("mySidebar");
+            overlayBg = document.getElementById("myOverlay");
+            if (mySidebar.style.display == 'block') {
+                mySidebar.style.display = 'none';
+                overlayBg.style.display = "none";
+            } else {
+                mySidebar.style.display = 'block';
+                overlayBg.style.display = "block";
+            }
+        }      
+
+        // Close the sidebar with the close button
+        function w3_close() {
+            mySidebar = document.getElementById("mySidebar");
+            overlayBg = document.getElementById("myOverlay");
+            mySidebar.style.display = "none";
+            overlayBg.style.display = "none";
+        }
+        function formatLocalDateTime(dtstring) {
+            var dt = new Date(dtstring);
+            return dt.toLocaleDateString() + " " + dt.toLocaleTimeString();
+        }
+        function formatUTCDateTime(dtstring) {
+            
+            var dt = new Date(dtstring);
+            var hrs = dt.getUTCHours() > 12 ? dt.getUTCHours() - 12 : dt.getUTCHours();
+            var min = dt.getUTCMinutes() >= 10 ? dt.getUTCMinutes() : "0" + dt.getUTCMinutes();
+            var sec = dt.getUTCSeconds() >= 10 ? dt.getUTCSeconds() : "0" + dt.getUTCSeconds();
+            var am_pm = dt.getUTCHours() > 12 ? "PM" : "AM";
+            return dt.toLocaleDateString() + " " + hrs + ":" + min + ":" + sec + " " + am_pm;
+        }
+    </script>
+</body>
+</html>

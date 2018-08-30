@@ -1,0 +1,43 @@
+﻿<div class="w3-card-2 w3-margin w3-white">
+    <div class="w3-container w3-padding w3-light-green">
+        <h6><b><i class="fa fa-history fa-fw"></i> History</b></h6>
+    </div>
+    <br />
+    <div class="w3-container w3-padding">
+        <div>
+            <table class="w3-table-all w3-hoverable" id="timerecords"></table>            
+            <br />
+        </div>
+    </div>
+</div>
+<script>
+    //Get the time, parameter=timezone id
+    $(document).ready(function () {
+        var tableTemplateHead = '<thead><tr class="w3-gray"><th>Query Id</th><th>Client IP</th><th>Time</th><th>UTC Time</th><th>Time Zone</th></tr ></thead >';        
+        var tableTempRows = tableTempRows = '<tr><td>queryid</td><td>clientip</td><td>time</td><td>utctime</td><td>timezone</td></tr>';
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:50000/api/currenttime/",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                $(jQuery.parseJSON(JSON.stringify(data))).each(function () {
+                    var dtTime = formatLocalDateTime(this.time);
+                    var dtUTCTime = formatUTCDateTime(this.utcTime);                    
+                    var tmpTblRow = tableTempRows.replace("queryid", this.currentTimeQueryId).replace("clientip", this.clientIp).replace("time", dtTime).replace("utctime", dtUTCTime).replace("timezone", this.timeZoneName);
+
+                    if ($("#timerecords").html() == "") {
+                        $("#timerecords").html(tableTemplateHead);
+                    }
+                    $("#timerecords").append(tmpTblRow);
+                });
+            }, //End of AJAX Success function
+            failure: function (data) {
+                alert('Not found: ' + $("#timezone").val());
+            }, //End of AJAX failure function
+            error: function (data) {
+                alert('Not found: ' + $("#timezone").val());
+            } //End of AJAX error function
+        });
+    });
+</script>

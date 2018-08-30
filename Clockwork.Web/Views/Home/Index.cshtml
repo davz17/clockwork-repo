@@ -1,0 +1,149 @@
+﻿<div class="w3-card-2 w3-margin w3-white">
+    <div class="w3-container w3-padding w3-light-green">
+        <h6><b><i class="fa fa-dashboard"></i> My Dashboard</b></h6>
+    </div>
+    <br />
+    <form class="w3-row-padding" action="javascript:void();">
+        <div class="input-group w3-quarter">
+            <input id="timezone" type="text" class="form-control" name="email" placeholder="Enter Timezone" required>
+            <span class="input-group-addon" id="viewalltz"><i class="fa fa-search" title="Browse all timezones"></i></span>
+        </div>
+        <div class="w3-quarter">
+            <button class="btn w3-orange" id="gettime" type="submit"><b>Get the time</b></button>
+        </div>
+    </form>
+    <hr />
+    <div class="w3-container w3-padding">
+        <div>
+            <table class="w3-table-all w3-hoverable" id="timerecords"></table>
+            <br />
+        </div>
+    </div>
+    <br />
+</div>
+
+<!-- Modal-->
+<div class="w3-container">
+    <div id="frmmodal" class="w3-modal">
+        <div class="w3-modal-content w3-card-4 w3-animate-zoom" id="frmmodalsub">
+            <div class="w3-center">
+                <header class="w3-container w3-light-green">
+                    <h4>Browse Timezones</h4>
+                </header>
+            </div>
+            <div class="w3-container w3-padding">
+                <div class="panel-body">
+                    <ul class="list-group">
+                    </ul>
+                </div>
+            </div>
+            <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+                <button type="button" class="w3-button w3-red w3-right" id="frmclose">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function UserAction() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("output").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "http://127.0.0.1:5000/api/currenttime", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send();
+    }
+      
+    $(document).ready(function () {
+        //get list of time zones
+        var TZ = [];
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:50000/api/timezones",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                $(jQuery.parseJSON(JSON.stringify(data))).each(function () {
+                    TZ.push(this.id);
+                });
+            }, //End of AJAX Success function
+            failure: function (data) {
+                alert('ajax failure:' + data.responseText);
+            }, //End of AJAX failure function
+            error: function (data) {
+                alert('ajax error:' + data.responseText);
+            } //End of AJAX error function
+        });
+
+        $("#viewalltz").click(function () {
+            $("#frmmodal").css({ "display": "block" });
+            var tmpli = '<li class="list-group-item">val</li>';
+            var tmpval = "";
+            $.each(TZ.sort(), function (index, value) {
+                tmpval += tmpli.replace("val", value);
+                $(".list-group").html(tmpval);    
+            });
+            $(".list-group-item").click(function () {
+                $("#timezone").val(this.innerHTML);
+                $("#frmmodal").css({ "display": "none" });
+            });
+            $(".list-group-item").css({ "cursor": "pointer" })
+        });
+        //attach event handler
+        $(function () {
+            $("#timezone").autocomplete({
+                source: TZ
+            });
+        });        
+        
+        $("#viewalltz").tooltip({
+            show: {
+                effect: "slideDown",
+                delay: 250
+            }
+        })
+        $("#frmclose").click(function () {
+            $("#frmmodal").css({ "display": "none" });
+        });
+        
+        $(".input-group-addon").css({ "cursor": "pointer" })
+        $("#frmmodalsub").css({ "width": "800px", "height": "500px" });
+        $(".list-group").css({ "max-height": "330px", "margin-bottom": "10px", "overflow": "scroll", "-webkit-overflow-scrolling":"touch" })
+                
+        //Get the time, parameter=timezone id
+        $(function () {
+            var tableTemplateHead = '<thead><tr class="w3-gray"><th>Query Id</th><th>Client IP</th><th>Time</th><th>UTC Time</th><th>Time Zone</th></tr ></thead >';
+            var tableTempRows = '<tr><td>queryid</td><td>clientip</td><td>time</td><td>utctime</td><td>timezone</td></tr>';
+            $("#gettime").click(function () {
+                if ($("#timezone").val().trim() != "") {
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:50000/api/currenttime/" + $("#timezone").val(),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            $(jQuery.parseJSON(JSON.stringify(data))).each(function () {
+                                var dtTime = formatLocalDateTime(this.time);
+                                var dtUTCTime = formatUTCDateTime(this.utcTime);
+
+                                if ($("#timerecords").html() == "") {
+                                    $("#timerecords").html(tableTemplateHead);
+                                }
+                                $("#timerecords").append(tableTempRows.replace("queryid", this.currentTimeQueryId).replace("clientip", this.clientIp).replace("time", dtTime).replace("utctime", dtUTCTime).replace("timezone", this.timeZoneName));
+                            });
+                            $("#timezone").val("");
+                        }, //End of AJAX Success function
+                        failure: function (data) {
+                            alert('Not found: ' + $("#timezone").val());
+                        }, //End of AJAX failure function
+                        error: function (data) {
+                            alert('Not found: ' + $("#timezone").val());
+                        } //End of AJAX error function
+                    });
+                }
+            });
+        });
+    });
+</script>
